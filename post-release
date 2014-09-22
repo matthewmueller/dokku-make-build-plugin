@@ -1,0 +1,16 @@
+#!/bin/bash
+
+APP="$1"; IMAGE="dokku/$APP"
+echo "-----> Running: make build ..."
+COMMAND=$(cat <<EOF
+cd "/app" &&
+ln -s /usr/bin/nodejs /usr/bin/node
+make build
+EOF
+)
+
+id=$(docker run -d $IMAGE /bin/bash -c "$COMMAND")
+docker attach $id
+test $(docker wait $id) -eq 0
+docker commit $id $IMAGE > /dev/null
+echo "-----> Ran: make build"
